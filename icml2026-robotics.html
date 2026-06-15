@@ -43,6 +43,14 @@ header.hero .lede{font-size:1.18rem;color:#4a4a4a;max-width:60ch;}
 .tab-btn:hover{color:var(--fg);}
 .tab-btn.active{color:var(--fg);border-bottom-color:var(--purple);}
 .panel{display:none;padding:2.5rem 0 4rem;}
+/* Paper Table breaks out of the narrow reading column to use more width */
+#papers.active{
+  display:block;
+  width:min(1500px,calc(100vw - 3rem));
+  position:relative;
+  left:50%;
+  transform:translateX(-50%);
+}
 .panel.active{display:block;}
 /* Markdown */
 .md h1{font-weight:400;font-size:2.1rem;line-height:1.18;letter-spacing:-.01em;margin:2.4rem 0 1rem;}
@@ -80,7 +88,11 @@ table.data thead th:hover{color:var(--purple);}
 table.data td{padding:.6rem .7rem;border-bottom:1px solid var(--rule);vertical-align:top;}
 table.data tr:hover td{background:#faf9f7;}
 .cat-badge{display:inline-block;font-size:.72rem;font-weight:600;color:var(--purple);white-space:nowrap;}
-.abstract{color:var(--muted);font-size:.8rem;max-width:460px;line-height:1.5;}
+.abstract{color:var(--muted);font-size:.8rem;line-height:1.5;min-width:520px;}
+table.data th:nth-child(1),table.data td:nth-child(1){width:9%;}
+table.data th:nth-child(2),table.data td:nth-child(2){width:20%;}
+table.data th:nth-child(3),table.data td:nth-child(3){width:16%;}
+table.data th:nth-child(4),table.data td:nth-child(4){width:55%;}
 .paper-link{color:var(--aqua);text-decoration:none;border-bottom:1px solid rgba(66,123,88,.3);font-weight:500;}
 .paper-link:hover{border-bottom-color:var(--aqua);}
 footer{border-top:1px solid var(--rule);padding:2rem 0;font-family:var(--font-sans);font-size:.85rem;color:var(--muted);}
