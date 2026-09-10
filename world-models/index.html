@@ -1,0 +1,339 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>World Models — Research Summary</title><style>
+:root{--bg:#fbfbfa;--fg:#1a1a1a;--muted:#666;--card:#fff;--border:#e3e3e0;--accent:#7a4;--link:#2a6;--code:#f0f0ee}
+@media (prefers-color-scheme:dark){:root{--bg:#16171a;--fg:#e8e8e6;--muted:#9a9a97;--card:#1f2024;--border:#2e2f34;--accent:#8c6;--link:#6d9;--code:#25262b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .3rem}
+h2{font-size:1.3rem;margin:2.2rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.05rem;margin:1.6rem 0 .4rem}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+p,li{color:var(--fg)}
+code{background:var(--code);padding:.12em .4em;border-radius:4px;font-size:.88em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:1rem;border-radius:8px;overflow-x:auto}
+pre code{background:none;padding:0}
+hr{border:none;border-top:1px solid var(--border);margin:1.8rem 0}
+.tablewrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+.muted{color:var(--muted)}
+.back{display:inline-block;margin-bottom:1.5rem;font-size:.9rem}
+.lede{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1.5rem}
+.paper{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.3rem;margin:1.1rem 0}
+.paper h3{margin:0 0 .25rem;font-size:1rem}
+.paper h3 a{color:var(--fg)}
+.paper .pmeta{color:var(--muted);font-size:.82rem;margin-bottom:.7rem}
+.paper .pmeta .cites{color:var(--accent);font-weight:600}
+.paper img{max-width:100%;height:auto;display:block;margin:.7rem auto;border:1px solid var(--border);border-radius:8px;background:#fff}
+.rank{display:inline-block;min-width:1.6em;text-align:center;background:var(--accent);color:#fff;border-radius:6px;padding:.05rem .4rem;font-size:.78rem;font-weight:700;margin-right:.5rem}
+</style></head><body><div class="wrap">
+<a class="back" href="../index.html">&larr; all research</a>
+<p class="lede" style="margin-bottom:0"><a href="synthesis.html">Read the synthesis &rarr;</a> — all of these papers explained together as one narrative, instead of one card at a time.</p>
+<h1>World Models &amp; World-Action Models</h1>
+<p class="lede">Sections below are a curated, knowledge-based overview — except the ranked list, which <em>is</em> citation-mined (Semantic Scholar Graph API, live query, real counts) like the sibling folders elsewhere in this repo. PDFs are in <code>pdfs/</code>; each ranked paper's gist figure was extracted locally with <code>src/process_paper.py</code>.</p>
+
+<p>A <strong>world model</strong> is a learned internal model of an environment's dynamics: given the current observation (and, in the action-conditioned case, an action), it predicts what happens next — the next observation, state, or reward — without needing to actually step the real environment. A <strong>world-action model</strong> (sometimes written world&ndash;action model, or WAM) is the action-conditioned special case made explicit: it learns <code>p(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>)</code>, i.e. dynamics <em>as a function of the agent's own actions</em>, so it can be queried as a simulator — "if I do <em>a</em>, what happens?" — and used for planning, policy training inside imagined rollouts, or evaluating a robot policy offline. Plain world models describe how a scene evolves; world-action models describe how it evolves <em>because of what an agent does to it</em>, which is the piece that connects world models to robotics and VLA policies.
+
+<h2>Origins</h2>
+<ul>
+<li><strong>Ha &amp; Schmidhuber, "World Models" (2018)</strong> — coined the modern usage: a VAE (vision) + RNN (memory/dynamics) + linear controller trained inside its own learned "dream" of the environment. <a href="https://arxiv.org/abs/1803.10122">arXiv:1803.10122</a></li>
+<li><strong>PlaNet (Hafner et al., 2019)</strong> — a recurrent state-space model (RSSM) that plans purely in learned latent space from pixels. <a href="https://arxiv.org/abs/1811.04551">arXiv:1811.04551</a></li>
+<li><strong>Dreamer / DreamerV2 / DreamerV3 (Hafner et al., 2020&ndash;2023)</strong> — the RSSM lineage: learn a latent world model, then train the actor-critic entirely on imagined rollouts through it. DreamerV3 is the first algorithm to master Minecraft diamond collection from scratch with one fixed hyperparameter set. <a href="https://arxiv.org/abs/2301.04104">arXiv:2301.04104</a></li>
+<li><strong>MuZero (Schrittwieser et al., 2019)</strong> — learns a value/policy-equivalent implicit model (no pixel reconstruction) and plans with MCTS through it; the model-based-RL sibling of the explicit generative world model.</li>
+</ul>
+
+<h2>Video-generation world models</h2>
+<p>Scaling world models to internet-scale video turns them into general-purpose "what happens next" simulators, action-conditioned or not:</p>
+<ul>
+<li><strong>Genie / Genie 2 (DeepMind, 2024)</strong> — learns a <em>latent action space</em> unsupervised from unlabeled video, then generates playable, action-controllable video worlds frame-by-frame.</li>
+<li><strong>GameNGen (Google, 2024)</strong> — a diffusion model that runs DOOM interactively in real time, trained purely on gameplay video + actions.</li>
+<li><strong>Sora / Sora 2 (OpenAI)</strong> and <strong>Veo (Google DeepMind)</strong> — large video-diffusion models; not action-conditioned per se, but widely treated as evidence that video generators are implicitly learning physics/world dynamics.</li>
+<li><strong>Cosmos World Foundation Models (NVIDIA, 2025)</strong> — a family of pretrained video-based world models meant as a base layer for downstream robotics/AV policy and simulation work (see <code>Cosmos-Surg-DVRK</code>, <code>Cosmos-H-Surgical</code> in MedicalVLAs).</li>
+<li><strong>WHAM (Microsoft, 2024)</strong> — a world and human action model trained on Bleeding Edge gameplay; consistent multi-minute action-conditioned rollouts.</li>
+</ul>
+
+<h2>World-action models for robotics &amp; VLAs</h2>
+<p>The branch most relevant to this repo's VLA work: using an action-conditioned world model as the robot's internal simulator, either to train the policy inside imagined rollouts, to generate synthetic training video, or to score/evaluate a policy without running the real robot.</p>
+<ul>
+<li><strong>UniPi (Google DeepMind, 2023)</strong> — casts policy learning as text-conditioned video generation; actions are read out of the generated frames.</li>
+<li><strong>UniSim (2023)</strong> — a general "universal simulator" of real-world interaction learned from broad video + action data, used to train and evaluate policies.</li>
+<li><strong>RoboDreamer (2024)</strong> — compositional video-diffusion world model for language-conditioned manipulation planning.</li>
+<li><strong>iVideoGPT (2024)</strong> — scalable autoregressive video-token world model for interactive/robotic prediction.</li>
+<li><strong>DreamGen (NVIDIA, 2025)</strong> — uses a video world model to generate synthetic robot demonstration data ("neural trajectories") for VLA training.</li>
+<li><strong>V-JEPA / V-JEPA 2 (Meta, 2024&ndash;2025)</strong> — LeCun's joint-embedding predictive architecture: predicts in learned representation space rather than pixels, explicitly framed as the "world model" component of his broader autonomous-agent (JEPA + actor) proposal.</li>
+<li><strong>1X World Model / Genie-2-for-robotics-style work (2025)</strong> — humanoid-teleop labs using action-conditioned video world models both to augment training data and as offline policy evaluators.</li>
+</ul>
+
+<h2>Why it matters for VLAs</h2>
+<p>A VLA policy maps observation+instruction &rarr; action. A world-action model is the complementary piece: observation+action &rarr; next observation. Put together, they close the loop without touching hardware — train or evaluate the policy against the world model's imagined rollouts instead of (or in addition to) the real environment. That is exactly the role <code>Cosmos-Surg-DVRK</code> and <code>Cosmos-H-Surgical</code> play for surgical VLAs in MedicalVLAs, and the role Dreamer-style world models play for Sergey Levine/Physical-Intelligence-style model-based RL.</p>
+
+<h2>Top 20 papers (2025&ndash;2026, ranked by citations)</h2>
+<p>Methodology: queried the <code>api.semanticscholar.org/graph/v1/paper/search</code> endpoint (query variants "world model" / "world action model", <code>year=2025-2026</code>), merged and deduplicated the results, then kept only papers whose core contribution <em>is</em> a world model or world-action model (dropping the many generic VLA papers that just mention "world" in passing), sorted by Semantic Scholar citation count. Two of the twenty (Cosmos, V-JEPA&nbsp;2) weren't in the top of that relevance-ranked query and were looked up directly by arXiv ID. Each paper's PDF was pulled from arXiv into <code>pdfs/</code> and its "gist" figure — the one diagram that best captures the paper's core idea, almost always Figure&nbsp;1 or the main architecture/overview figure — was extracted with <code>src/process_paper.py</code> (a couple needed a manual crop where the auto-cropper picked up title/author text alongside a top-of-page figure).</p>
+
+<div class="paper">
+<h3><span class="rank">1</span><a href="https://arxiv.org/abs/2501.03575">Cosmos World Foundation Model Platform for Physical AI</a></h3>
+<p class="pmeta">NVIDIA · arXiv, 2025 · <span class="cites">779 citations</span></p>
+<p>A platform of pretrained, open-weight "world foundation models" (diffusion and autoregressive) meant to be fine-tuned into customized world models for downstream Physical AI — the digital-twin-of-the-world counterpart to a policy model's digital-twin-of-itself. Ships a video curation pipeline, pretrained WFMs, post-training examples, and video tokenizers.</p>
+<img src="figures/cosmos.png" alt="Cosmos WFM pre-training and post-training pipeline across manipulation, driving, and camera control">
+</div>
+
+<div class="paper">
+<h3><span class="rank">2</span><a href="https://arxiv.org/abs/2506.09985">V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning</a></h3>
+<p class="pmeta">Meta AI (FAIR) · arXiv, 2025 · <span class="cites">592 citations</span></p>
+<p>Pretrains an action-free joint-embedding predictive architecture on 1M+ hours of internet video, reaching state-of-the-art motion understanding and action anticipation, then post-trains an action-conditioned world model (V-JEPA 2-AC) on under 62 hours of unlabeled robot video. The resulting model plans zero-shot on real Franka arms in new labs — pick-and-place with image goals, no robot-specific data or reward.</p>
+<img src="figures/vjepa2.png" alt="V-JEPA 2 overview: video pretraining branching into language alignment, probing, and action-conditioned post-training">
+</div>
+
+<div class="paper">
+<h3><span class="rank">3</span><a href="https://arxiv.org/abs/2506.21539">WorldVLA: Towards Autoregressive Action World Model</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">276 citations</span></p>
+<p>Unifies a VLA action model and a world model in one autoregressive framework: the world model predicts future images from action+image to learn environment physics, while the action model's image understanding improves in turn. Finds that naive autoregressive action-chunk generation degrades from error propagation, and fixes it with an attention-mask strategy that hides prior actions when generating the current one.</p>
+<img src="figures/worldvla.png" alt="WorldVLA: comparing a standalone action model, a standalone world model, and the unified action-world model">
+</div>
+
+<div class="paper">
+<h3><span class="rank">4</span><a href="https://arxiv.org/abs/2602.15922">World Action Models are Zero-shot Policies</a></h3>
+<p class="pmeta">NVIDIA (DreamZero) · arXiv, 2026 · <span class="cites">240 citations</span></p>
+<p>DreamZero is a 14B World Action Model built on a video-diffusion backbone that jointly predicts future video and actions, learning physical dynamics from heterogeneous robot data without repetitive demonstrations — over 2&times; better generalization to new tasks/environments than state-of-the-art VLAs, running real-time closed-loop control at 7Hz. Also shows cross-embodiment transfer from human/other-robot video and few-shot adaptation to a new embodiment with 30 minutes of play data.</p>
+<img src="figures/dreamzero_wam.png" alt="DreamZero: diverse pretraining data, the World Action Model core, and zero-shot/few-shot generalization results">
+</div>
+
+<div class="paper">
+<h3><span class="rank">5</span><a href="https://arxiv.org/abs/2507.04447">DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">190 citations</span></p>
+<p>Instead of just forecasting future images, DreamVLA forecasts dynamic, spatial, and semantic world knowledge jointly, forming a perception&ndash;prediction&ndash;action loop closer to how humans reason before acting. A block-wise attention mask keeps the three knowledge streams disentangled during training; reports 76.7% real-robot success and 4.44 average task length on CALVIN ABC-D.</p>
+<img src="figures/dreamvla.png" alt="DreamVLA compared against plain VLA, image/video generation, and VLA-with-subgoal-image baselines">
+</div>
+
+<div class="paper">
+<h3><span class="rank">6</span><a href="https://arxiv.org/abs/2503.20523">GAIA-2: A Controllable Multi-View Generative World Model for Autonomous Driving</a></h3>
+<p class="pmeta">Wayve · arXiv, 2025 · <span class="cites">168 citations</span></p>
+<p>A latent diffusion world model that generates high-resolution, spatiotemporally consistent multi-camera driving video conditioned on ego dynamics, agent configurations, environment, and road semantics, across geographically diverse regions (UK/US/Germany). Built to scale-simulate both common and rare driving scenarios for AV development.</p>
+<img src="figures/gaia2.png" alt="Grid of GAIA-2 generated multi-camera driving scenes across countries and weather conditions">
+</div>
+
+<div class="paper">
+<h3><span class="rank">7</span><a href="https://arxiv.org/abs/2512.13030">Motus: A Unified Latent Action World Model</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">157 citations</span></p>
+<p>A Mixture-of-Transformer architecture fuses understanding, video-generation, and action experts into one model that can switch between acting as a world model, a VLA, an inverse-dynamics model, or a video-action joint predictor. Learns "delta actions" from optical flow for large-scale action pretraining; reports +15% over X-VLA and +45% over &pi;0.5 in simulation, +11&ndash;48% on real robots.</p>
+<img src="figures/motus.png" alt="Motus tri-model architecture: video generation, action, and understanding experts sharing joint attention">
+</div>
+
+<div class="paper">
+<h3><span class="rank">8</span><a href="https://arxiv.org/abs/2504.01941">End-to-End Driving with Online Trajectory Evaluation via BEV World Model</a></h3>
+<p class="pmeta">CASIA / UCAS (WoTE) · arXiv, 2025 · <span class="cites">152 citations</span></p>
+<p>WoTE adds a latency-efficient Bird's-Eye-View world model to an end-to-end driving stack purely to score candidate trajectories: it forecasts future BEV states for each candidate and picks the one a reward model ranks highest, supervisable directly from off-the-shelf BEV-space traffic simulators. State-of-the-art on NAVSIM and the closed-loop Bench2Drive/CARLA benchmark.</p>
+<img src="figures/wote_bev.png" alt="WoTE: end-to-end trajectory prediction vs. prediction-plus-evaluation via a BEV world model and reward model">
+</div>
+
+<div class="paper">
+<h3><span class="rank">9</span><a href="https://arxiv.org/abs/2603.16666">Fast-WAM: Do World Action Models Need Test-time Future Imagination?</a></h3>
+<p class="pmeta">arXiv, 2026 · <span class="cites">138 citations</span></p>
+<p>Asks whether World Action Models' benefit comes from video modeling during <em>training</em> or explicit future-video imagination at <em>test time</em> — the latter being the source of most WAM inference latency. Fast-WAM keeps video co-training but skips test-time future prediction, staying competitive with imagine-then-execute WAMs (LIBERO, RoboTwin, real robots) while running 4&times; faster at 190ms latency; dropping training-time video co-training hurts far more than skipping test-time imagination.</p>
+<img src="figures/fastwam.png" alt="Fast-WAM training and inference variants: joint video+action denoising vs. video-then-action vs. action-only inference">
+</div>
+
+<div class="paper">
+<h3><span class="rank">10</span><a href="https://arxiv.org/abs/2508.13009">Matrix-Game 2.0: An Open-Source, Real-Time, and Streaming Interactive World Model</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">132 citations</span></p>
+<p>A few-step autoregressive-diffusion interactive world model that generates minute-level, keyboard/mouse-controllable video at 25 FPS, trained on ~1,200 hours of Unreal Engine + GTA5 footage with frame-level action injection. Open-sourced model weights and codebase.</p>
+<img src="figures/matrixgame2.png" alt="Grid of Matrix-Game 2.0 interactive scenes with WASD keyboard control overlays">
+</div>
+
+<div class="paper">
+<h3><span class="rank">11</span><a href="https://arxiv.org/abs/2510.10125">Ctrl-World: A Controllable Generative World Model for Robot Manipulation</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">128 citations</span></p>
+<p>A multi-view, action-conditioned world model (trained on DROID: 95k trajectories, 564 scenes) that stays spatially/temporally consistent for 20+ seconds under novel scenes and camera placements, via pose-conditioned memory retrieval and frame-level action conditioning. Ranks generalist robot policies without real rollouts, and fine-tuning on its own imagined successful trajectories improves policy success by 44.7%.</p>
+<img src="figures/ctrlworld.png" alt="Ctrl-World: policy-in-the-loop world model rollout used for both policy evaluation and policy improvement">
+</div>
+
+<div class="paper">
+<h3><span class="rank">12</span><a href="https://arxiv.org/abs/2506.24113">Epona: Autoregressive Diffusion World Model for Autonomous Driving</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">111 citations</span></p>
+<p>Decouples temporal dynamics from fine-grained future-frame generation and integrates trajectory planning directly into the video-diffusion loop, rather than modeling a fixed-length clip's joint distribution all at once. A "chain-of-forward" training strategy tames autoregressive error accumulation; reports 7.4% FVD improvement, minutes-long generation, and out-performs strong end-to-end planners on NAVSIM when used as a real-time planner itself.</p>
+<img src="figures/epona.png" alt="Epona: long consistent video generation, trajectory-controlled generation, traffic-knowledge understanding, and planning">
+</div>
+
+<div class="paper">
+<h3><span class="rank">13</span><a href="https://arxiv.org/abs/2507.00603">World4Drive: End-to-End Autonomous Driving via Intention-Aware Physical Latent World Model</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">93 citations</span></p>
+<p>Removes the need for costly perception annotations in end-to-end driving by predicting multiple intention-driven future latent states with a vision-foundation-model-backed world model, then self-supervising against actual future observations. A world-model-selector module picks the best of several generated planning trajectories; reports 18.0% lower L2 error, 46.7% lower collision rate, and 3.75&times; faster training convergence on nuScenes/NavSim.</p>
+<img src="figures/world4drive.png" alt="World4Drive architecture: intention encoder, physical latent encoder, world model dreamer, and world-model selector">
+</div>
+
+<div class="paper">
+<h3><span class="rank">14</span><a href="https://arxiv.org/abs/2504.08388">MineWorld: a Real-Time and Open-Source Interactive World Model on Minecraft</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">77 citations</span></p>
+<p>A visual-action autoregressive Transformer that tokenizes game scenes and actions and next-token-predicts the consequent scene, with a parallel decoding scheme that generates 4&ndash;7 FPS for real interactive play. Introduces new metrics that score action-following fidelity, not just visual quality, and outperforms prior diffusion-based Minecraft world models on both.</p>
+<img src="figures/mineworld.png" alt="MineWorld: game states and actions tokenized and fed jointly into a transformer decoder">
+</div>
+
+<div class="paper">
+<h3><span class="rank">15</span><a href="https://arxiv.org/abs/2603.17240">GigaWorld-Policy: An Efficient Action-Centered World-Action Model</a></h3>
+<p class="pmeta">GigaAI · arXiv, 2026 · <span class="cites">72 citations</span></p>
+<p>Most WAMs entangle action accuracy with future-video quality; GigaWorld-Policy decouples them with a causal design where action tokens can't be influenced by future-video tokens, so video generation becomes optional at inference for faster action prediction while still supervising training with both objectives. Runs 9&times; faster than Motus while improving task success 7%, and beats &pi;0.5 by 95% on RoboTwin 2.0.</p>
+<img src="figures/gigaworld_policy.png" alt="GigaWorld-Policy: action-centered joint training vs. efficient inference with optional future-video generation">
+</div>
+
+<div class="paper">
+<h3><span class="rank">16</span><a href="https://arxiv.org/abs/2512.04040">RELIC: Interactive Video World Model with Long-Horizon Memory</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">64 citations</span></p>
+<p>Targets all three properties a truly interactive world model needs at once — real-time long-horizon streaming, consistent spatial memory, and precise control — usually achieved only in isolation. A 14B model compresses history into camera-aware latent tokens in the KV cache for 3D-consistent long-term memory, distilled from a bidirectional teacher into a causal real-time (16 FPS) student generator.</p>
+<img src="figures/relic.png" alt="RELIC exploring diverse scenes interactively with on-screen directional and camera controls">
+</div>
+
+<div class="paper">
+<h3><span class="rank">17</span><a href="https://arxiv.org/abs/2509.22642">WoW: Towards a World omniscient World model Through Embodied Interaction</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">56 citations</span></p>
+<p>A 14B generative world model trained on 2 million robot interaction trajectories, testing the hypothesis that physical intuition (unlike passive video models such as Sora) must come from causally-rich real-world interaction. Finds the model's physics understanding is a probabilistic distribution prone to hallucination, and constrains it toward realism with SOPHIA (VLM agents iteratively refining the generation) plus a co-trained inverse-dynamics model that closes the imagination-to-action loop.</p>
+<img src="figures/wow.png" alt="WoW: perception-prediction-judgement-reflection-action loop around an embodied video foundation model">
+</div>
+
+<div class="paper">
+<h3><span class="rank">18</span><a href="https://arxiv.org/abs/2501.14729">HERMES: A Unified Self-Driving World Model for Simultaneous 3D Scene Understanding and Generation</a></h3>
+<p class="pmeta">arXiv, 2025 · <span class="cites">55 citations</span></p>
+<p>Prior driving world models generate future scenes but don't reason about the present one; Hermes unifies both by injecting "world queries" — world knowledge fused into BEV features via causal attention inside an LLM — so the same representation serves understanding and generation. Reduces generation error by 32.4% and improves understanding (CIDEr) by 8.0% on nuScenes / OmniDrive-nuScenes.</p>
+<img src="figures/hermes.png" alt="HERMES: progression from generation-only, to understanding-only, to a separated unification, to Hermes' unified self-driving world model">
+</div>
+
+<div class="paper">
+<h3><span class="rank">19</span><a href="https://arxiv.org/abs/2505.19017">WorldEval: World Model as Real-World Robot Policies Evaluator</a></h3>
+<p class="pmeta">Midea Group / East China Normal University · arXiv, 2025 · <span class="cites">55 citations</span></p>
+<p>Turns a video generation model into a policy evaluator: Policy2Vec converts robot actions into a latent-action signal the video model can faithfully follow (naive high-dimensional action encodings don't produce action-following video), then WorldEval automates online policy ranking and functions as a safety detector against dangerous newly-trained policies. Shows strong correlation between WorldEval scores and real-world outcomes, outperforming real-to-sim evaluation baselines.</p>
+<img src="figures/worldeval.png" alt="WorldEval: real robot and simulated evaluation vs. world-model-based evaluation, with a success-rate correlation plot">
+</div>
+
+<div class="paper">
+<h3><span class="rank">20</span><a href="https://arxiv.org/abs/2602.10098">VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model</a></h3>
+<p class="pmeta">arXiv, 2026 · <span class="cites">54 citations</span></p>
+<p>Argues prior latent-action pretraining objectives stay anchored to pixel variation rather than action-relevant state transitions, making them vulnerable to appearance bias and information leakage. VLA-JEPA fixes this with leakage-free JEPA-style prediction — a target encoder sees future frames only as a supervision target, never as model input — then fine-tunes an action head on top; a simpler two-stage recipe with consistent gains on LIBERO, LIBERO-Plus, SimplerEnv, and real robots.</p>
+<img src="figures/vla_jepa.png" alt="VLA-JEPA architecture: V-JEPA encoders, a projector predicting the future latent from a VLA-derived latent action">
+</div>
+
+<h2>Added by hand</h2>
+<p>Papers added outside the citation-mined top-20 above (so no rank badge or citation count); gist figures extracted the same way with <code>src/process_paper.py</code>.</p>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2601.21998">Causal World Modeling for Robot Control (LingBot-VA)</a></h3>
+<p class="pmeta">Robbyant · arXiv, 2026</p>
+<p>An autoregressive diffusion framework that learns frame prediction and policy execution at once, arguing video world modeling is an independent pretraining foundation for robot learning alongside vision-language pretraining. Three pieces: a shared vision+action latent space driven by a Mixture-of-Transformers, a closed-loop rollout that keeps re-grounding on ground-truth observations, and an asynchronous inference pipeline that overlaps action prediction with motor execution. Reports 92.0% on RoboTwin 2.0 and 98.5% on LIBERO, over 20% above &pi;0.5 on hard real-world tasks with only 50 adaptation demos, plus emergent long-range temporal memory; code, model, and checkpoints public.</p>
+<img src="figures/lingbot_va.png" alt="LingBot-VA: internet + robot video pretraining, the language/video/action model stack, and real-world plus simulation results">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2607.08639">Native Video-Action Pretraining for Generalizable Robot Control (LingBot-VA 2.0)</a></h3>
+<p class="pmeta">Robbyant · arXiv, 2026</p>
+<p>The sequel's thesis: repurposing video generators built for digital content creation is the wrong starting point for embodiment, so build the video-action model natively instead. Four changes from LingBot-VA — a semantic visual-action tokenizer (SemVAE) that aligns visual latents with semantics <em>and</em> actions rather than reconstruction, causal pretraining from scratch to dodge the catastrophic forgetting of adapting bidirectional backbones, a sparse-MoE backbone for capacity without inference cost, and an enhanced asynchronous scheme that predicts future latents in parallel with execution while re-grounding each rollout via learned forward dynamics. 93.6% average on RoboTwin 2.0 (+14.0 points over &pi;0.5, and only 0.6 points between clean and domain-randomized), with acceleration lifting asynchronous control from 35Hz to 225Hz.</p>
+<img src="figures/lingbot_va2.png" alt="LingBot-VA 2.0 overview: planner, SemVAE tokenizer, MoE video model and action model autoregressively predicting future latents and actions">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2606.05254">Flash-WAM: Modality-Aware Distillation for World Action Models</a></h3>
+<p class="pmeta">Northeastern / U. Georgia / EmbodyX · arXiv, 2026</p>
+<p>WAMs need tens of denoising steps, which rules out real-time control, and off-the-shelf step distillation breaks here because the video and action streams run different SNR-shifted noise schedules and arrive at training with very different marginal noise. Flash-WAM picks a consistency function per modality to match its noise regime — linear-gradient-scaling for the action stream's low-noise regime, variance-preserving for the video stream's high-noise regime — from a structural analysis of what gradient scaling the consistency boundary condition permits. On LingBot-VA it compresses both modalities to a single step: per-chunk latency drops from 8.1s to 348ms on an L40S (23&times;), keeping 85.5% RoboTwin 2.0 / 95.7% LIBERO and 60% on a Unitree G1 humanoid, where naive consistency distillation collapses to 24% at the same step budget.</p>
+<img src="figures/flashwam.png" alt="Flash-WAM: per-chunk video/action denoising latency versus baselines, and RoboTwin 2.0 success rate at one-step budgets">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2607.28405">QuantWAMs: Calibrating at the Right Granularity for World Action Models</a></h3>
+<p class="pmeta">Fudan University / ECNU · arXiv, 2026</p>
+<p>Post-training quantization transfers badly to WAMs because it assumes open-loop objectives, homogeneous models, and calibration data that doesn't match deployment. QuantWAMs matches each quantization decision to its calibration context with three strategies: shared-basis outlier calibration (pool activation statistics only across coordinate-compatible modules), co-training-objective saliency (empirical-Fisher scores from the <em>joint</em> video&ndash;action gradient, assigning weight precision at a calibration-stable layer granularity), and fixed-intervention rollout auditing (revise denoising-step protection schedules using reachable closed-loop states, same precision budget). On Fast-WAM and LingBot-VA, a W4A4-dominant setting lands within 0.2&ndash;0.7 points of FP16 in simulation, holds up on an AgiBot G2, and cuts peak weight+activation memory to ~29% of FP16 with 1.4&ndash;1.6&times; block-level speedups.</p>
+<img src="figures/quantwam.png" alt="QuantWAMs overview: shared-basis outlier calibration, co-train-guided saliency, and real-rollout counterfactual audit over video and action DiT blocks">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2607.29235">FBFM: A Training-Free Asynchronous Feedback Mechanism for Flow-Matching in World-Action Models Execution</a></h3>
+<p class="pmeta">DeepCybo / Zhongguancun Academy / PKU · arXiv, 2026</p>
+<p>WAMs stay reliable over long horizons by re-grounding in real observations rather than rolling out recursively, but existing feedback refreshes history or the KV cache only at chunk boundaries — too coarse to fix per-timestep prediction error. Feedback Flow Matching pushes re-grounding <em>inside</em> the chunk being generated: a masked pseudoinverse correction on the conditional velocity field, using the preceding action chunk to steer the next one and the image observed after executing it to steer the next frame prediction. That cross-chunk pairing forms an asynchronous loop that corrects drift without waiting for boundaries, and it needs no training. On DreamZero (joint-generation) and LingBot-VA (stage-wise): +3.0 points equal-weight success across 42 RoboTwin 2.0 tasks, +0.6 pooled on LIBERO (+2.5 on LIBERO-Goal and LIBERO-10), plus better state tracking on recorded physical-robot observations.</p>
+<img src="figures/fbfm.png" alt="FBFM: frame-predict and action-predict flow matching corrected by observations fed back from the previously executed chunk">
+</div>
+
+<h2>Physical Intelligence &pi;-series</h2>
+<p>These are VLA policies, not world models — included because they are the baseline the world-action-model papers above are measured against (&pi;<sub>0.5</sub> is the comparison point in nearly every one), and because the series drifts toward world modeling as it goes: &pi;<sub>0.7</sub> puts an explicit world model in its inference-time loop. All from Physical Intelligence except &pi;R&sup2; at the end, which only borrows the name; gist figures are each paper's Figure&nbsp;1 (or Figure&nbsp;2 for FAST), cropped where the auto-extractor picked up surrounding text.</p>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2410.24164">&pi;<sub>0</sub>: A Vision-Language-Action Flow Model for General Robot Control</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2024</p>
+<p>The one that set the template: a flow-matching action expert bolted onto a pretrained VLM, so the policy inherits internet-scale semantic knowledge and emits continuous high-frequency action chunks (up to 50Hz) for dexterous tasks. Trained on a large cross-embodiment dataset — single-arm, dual-arm, and mobile manipulators — then evaluated on direct prompting, following language from people or from a high-level VLM policy, and post-training to new skills like laundry folding and table bussing.</p>
+<img src="figures/pi0.png" alt="π0: cross-embodiment robot dataset and internet-scale pretraining feeding a VLM plus action expert, with zero-shot, specialized, and efficient post-training results">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2504.16054">&pi;<sub>0.5</sub>: a Vision-Language-Action Model with Open-World Generalization</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2025</p>
+<p>Built on &pi;<sub>0</sub>, but co-trained on deliberately heterogeneous sources — multiple robots, web data, object detection, semantic subtask prediction, and low-level actions as hybrid multimodal examples — on the argument that this knowledge transfer, not more robot data, is what buys generalization. Runs as a two-level policy: predict the semantic subtask, then the actions for it. First demonstration of an end-to-end learned system doing long-horizon dexterous work — cleaning a kitchen or a bedroom — in homes it has never seen.</p>
+<img src="figures/pi05.png" alt="π0.5: multimodal and robot action data sources feeding a high-level/low-level VLA policy deployed out-of-the-box in new homes">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2511.14759">&pi;<sup>*</sup><sub>0.6</sub>: a VLA That Learns From Experience</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2025</p>
+<p>Adds RL from real deployments via RECAP — RL with Experience and Corrections via Advantage-conditioned Policies. The generalist is pretrained with offline RL (that model is &pi;<sup>*</sup><sub>0.6</sub>), then specialized per task on a mix of demonstrations, autonomous rollouts, and expert teleoperated interventions; a value function fine-tuned on the online data supplies advantage estimates the policy is conditioned on. Folds laundry in real homes, assembles boxes, and pulls espresso on a professional machine — on the hardest tasks it more than doubles throughput and roughly halves the failure rate.</p>
+<img src="figures/pi06.png" alt="π*0.6 with RECAP: diverse data into the VLA and a value function, closed by an RL loop of rollouts, interventions, and labeling">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2604.15483">&pi;<sub>0.7</sub>: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2026</p>
+<p>The idea is diverse <em>context</em> conditioning: the prompt carries not just what to do but how — subgoal images and metadata about task performance and length — which makes very messy data usable (demonstrations, suboptimal autonomous rollouts including failures, egocentric human video) and lets the model be steered at inference by asking for the desired metadata. Yields zero-shot cross-embodiment transfer (folding laundry on a robot that never saw the task) and out-of-the-box espresso-machine operation matching much more specialized RL-finetuned models; notably, the inference stack pairs a high-level policy with an explicit world model.</p>
+<img src="figures/pi07.png" alt="π0.7: robot and non-robot data with language, subgoal images and episode metadata training a promptable VLA, with a high-level policy plus world model at inference">
+</div>
+
+<h3>Supporting &pi;-stack papers</h3>
+<p>Not &pi;-numbered releases, but the components the series is built out of — action tokenization, hierarchical instruction following, training dynamics, and real-time execution.</p>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2501.09747">FAST: Efficient Action Tokenization for Vision-Language-Action Models</a></h3>
+<p class="pmeta">Physical Intelligence / UC Berkeley / Stanford · arXiv, 2025</p>
+<p>Per-dimension, per-timestep binning of continuous actions falls apart on high-frequency dexterous data: consecutive tokens are so correlated that next-token prediction is trivially satisfied by copying, and the model settles into a poor local optimum. FAST instead compresses action chunks in frequency space with a discrete cosine transform before tokenizing, which makes autoregressive VLAs trainable on tasks where standard discretization fails outright. Ships FAST+, a universal tokenizer trained on 1M real robot trajectories, usable black-box across action spaces and control rates; with &pi;<sub>0</sub> it scales to 10k hours of robot data and matches diffusion VLA performance at up to 5&times; less training time.</p>
+<img src="figures/fast.png" alt="FAST: high-frequency robot data compressed by DCT into action tokens for a VLA, and tokenizer scores across control frequencies">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2502.19417">Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2025</p>
+<p>Complex prompts ("make me a vegetarian sandwich"), mid-task corrections ("that's not trash!"), and standing constraints ("I'm allergic to pickles") can't be handled by a flat instruction&rarr;action policy. Hi Robot splits the problem System-1/System-2 style: a high-level VLM reasons over the instruction, scene, and any incoming human feedback and emits atomic commands, while a low-level VLA executes them and hands control back. Trained partly on synthetic conversation data, it follows open-ended prompts and real-time corrections better than flat VLAs or GPT-4o-based hierarchies.</p>
+<img src="figures/hirobot.png" alt="Hi Robot: multi-stage instructions, unseen tasks, situated corrections and user constraints decomposed into atomic commands during execution">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2505.23705">Knowledge Insulating Vision-Language-Action Models: Train Fast, Run Fast, Generalize Better</a></h3>
+<p class="pmeta">Physical Intelligence · arXiv, 2025</p>
+<p>Bolting a diffusion/flow action expert onto a pretrained VLM is what makes real-time continuous control possible — and, this paper shows, it also significantly damages both training speed and the semantic knowledge transferred from the VLM, because gradients from freshly-initialized continuous modules corrupt the backbone. The fix is insulation: stop the action expert's gradients from reaching the VLM and keep training the backbone on discrete-token targets (language and FAST-tokenized actions), so semantic transfer survives while inference stays continuous and fast. Comes with a broad ablation of the design space this involves.</p>
+<img src="figures/ki_vla.png" alt="Knowledge insulation: VLM backbone trained with autoregressive losses on language and discrete actions, gradients stopped before a flow-matching action expert">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2506.07339">Real-Time Execution of Action Chunking Flow Policies (RTC)</a></h3>
+<p class="pmeta">Physical Intelligence / UC Berkeley · arXiv, 2025</p>
+<p>Action chunking gives temporal consistency but not real-time behavior: while the next chunk is being computed the robot either pauses or jerks across the chunk boundary out of distribution. RTC generates the next chunk <em>during</em> execution of the current one by freezing the actions guaranteed to run and inpainting the rest — an inference-time algorithm that drops into any diffusion- or flow-based VLA with no retraining. Evaluated on a new 12-task dynamic Kinetix benchmark and 6 real bimanual tasks, it stays robust to injected latency and keeps high success on precise work like striking a match.</p>
+<img src="figures/rtc.png" alt="RTC: a robot lighting a match, with position/velocity/acceleration traces comparing real-time chunking against synchronous execution and temporal ensembling">
+</div>
+
+<div class="paper">
+<h3><a href="https://arxiv.org/abs/2607.26055">&pi;R&sup2;: Reactive Real-time Flow Policies</a></h3>
+<p class="pmeta">Carnegie Mellon (&pi;-named, <em>not</em> Physical Intelligence) · arXiv, 2026</p>
+<p>Same problem RTC attacks, different cut. Building on diffusion forcing's per-position noise schedule, &pi;R&sup2; splits conditioning into a fast channel (proprioception, refreshed every tick) and an asynchronously updated slow channel (vision-language features), so the policy reacts within a chunk while tolerating stale vision; a latency-adaptive flow schedule treats in-flight actions as inpainting conditioning and emits actions in one denoising step, letting one trained model adapt to whatever hardware latency it meets. Fine-tuned from GR00T-N1.7 on a real xArm6+XHand it replans ~4&times; faster than the base policy (25Hz, a fresh observation every 40ms), improving success by up to 23% in simulation and 30% in the real world.</p>
+<img src="figures/pir2.png" alt="πR²: standard diffusion versus proprioceptive diffusion forcing, and train-time RTC versus the latency-adaptive noise schedule">
+</div>
+
+<h2>Key labs / groups</h2>
+<ul>
+<li>Google DeepMind — Genie, Genie 2, UniPi, Dreamer lineage (Danijar Hafner)</li>
+<li>NVIDIA — Cosmos World Foundation Models, DreamGen</li>
+<li>Meta AI (FAIR) — V-JEPA / V-JEPA 2 (Yann LeCun's world-model thesis)</li>
+<li>OpenAI — Sora / Sora 2</li>
+<li>Microsoft Research — WHAM (Muse)</li>
+<li>World Labs (Fei-Fei Li) — spatial/3D "large world models"</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+<li>Pixel-space vs. latent-space prediction — how much fidelity is needed for a world model to be useful for planning/training vs. just visually plausible?</li>
+<li>Action representation — explicit action tokens (Genie's learned discrete latent actions) vs. text/continuous actions vs. no action conditioning at all.</li>
+<li>Evaluation — there's no agreed benchmark for "how good is this world model as a simulator for policy training," as opposed to video-quality metrics.</li>
+<li>Sim-to-real gap, but for learned simulators: does a policy trained/evaluated inside a world model transfer to the real environment as well as physics-engine sim does?</li>
+</ul>
+
+</div></body></html>

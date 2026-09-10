@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DotdBot — 6-DOF Robot Projects</title>
+<title>DotdBot</title>
 <style>
 :root{
   --bg:#ffffff; --fg:#282828; --muted:#817d79; --rule:#e7e4e0;
@@ -30,23 +30,12 @@ section p{margin:.9rem 0;font-size:1.05rem;}
 .feature a{color:var(--aqua);text-decoration:none;border-bottom:1px solid rgba(66,123,88,.35);font-weight:500;}
 .feature a:hover{border-bottom-color:var(--aqua);}
 .feature h3{font-weight:400;font-size:1.5rem;margin-bottom:.5rem;letter-spacing:-.01em;}
-.projects{list-style:none;}
-.projects li{display:flex;justify-content:space-between;align-items:baseline;padding:1rem 0;border-bottom:1px solid var(--rule);}
-.projects li:last-child{border-bottom:none;}
-.projects .name{font-size:1.15rem;}
-.projects .desc{color:var(--muted);font-size:.92rem;font-family:var(--font-sans);max-width:50ch;margin-top:.2rem;}
-.status{font-family:var(--font-sans);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;margin-left:1.5rem;}
-.status.planning{color:#b57614;}
-.status.in-progress{color:var(--blue);}
-.status.active{color:var(--aqua);}
-.specs{list-style:none;font-family:var(--font-sans);font-size:.95rem;}
-.specs li{padding:.5rem 0;border-bottom:1px solid var(--rule);display:flex;gap:1rem;}
-.specs li:last-child{border-bottom:none;}
-.specs .k{color:var(--muted);min-width:180px;}
+.feature{padding-bottom:2.4rem;}
+.feature+.feature{padding-top:0;border-top:1px solid var(--rule);margin-top:0;}
 footer{padding:2rem 0;font-family:var(--font-sans);font-size:.85rem;color:var(--muted);}
 footer a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--rule);}
 footer a:hover{color:var(--fg);}
-@media(max-width:600px){header.hero h1{font-size:2.2rem;}html{font-size:17px;}.projects li{flex-direction:column;}.status{margin-left:0;margin-top:.4rem;}}
+@media(max-width:600px){header.hero h1{font-size:2.2rem;}html{font-size:17px;}}
 </style>
 </head>
 <body>
@@ -54,7 +43,9 @@ footer a:hover{color:var(--fg);}
   <div class="wrap">
     <a class="brand" href="index.html">DotdBot</a>
     <nav class="topnav">
+      <a href="world-models/index.html">World Models</a>
       <a href="icml2026-robotics.html">ICML 2026</a>
+      <a href="https://dotd.github.io">dotd.github.io</a>
       <a href="https://github.com/dotdbot">GitHub</a>
     </nav>
   </div>
@@ -62,56 +53,33 @@ footer a:hover{color:var(--fg);}
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">6-DOF Robotics · China Manufacturing</div>
+    <div class="eyebrow">Research Agent</div>
     <h1>DotdBot</h1>
-    <p class="lede">Documenting the development of high-precision six-degrees-of-freedom robotic systems — from mechanical design to international supply-chain sourcing.</p>
+    <p class="lede">The bot behind <a href="https://dotd.github.io">dotd.github.io</a> — it reads, tracks, and summarizes AI/robotics research so Dotan doesn't have to do it by hand.</p>
   </div>
 </header>
 
 <div class="wrap">
   <section>
     <h2>About</h2>
-    <p>This site documents a journey in robotics development, focusing on high-precision 6-DOF robotic systems and manufacturing sourcing from China via Alibaba. The project combines mechanical design, precision engineering, and international supply-chain management to build cost-effective robotic solutions.</p>
+    <p>DotdBot is an automated research assistant that mines papers, conference proceedings, and citation data, then turns them into readable pages: trend analyses, sortable paper tables, and cross-paper syntheses. It's the working layer behind <a href="https://dotd.github.io">Dotan Di Castro's</a> personal site.</p>
   </section>
 
   <section class="feature">
-    <h2>Research</h2>
+    <h2>Latest Output</h2>
+    <h3>World Models &amp; World-Action Models</h3>
+    <p>A curated overview of world models and world-action models for robotics/VLA, plus a citation-mined ranked reading list and a synthesis tying the papers together.</p>
+    <p><a href="world-models/index.html">Read the overview &rarr;</a></p>
+  </section>
+
+  <section class="feature">
     <h3>ICML 2026 — Robotics Analysis</h3>
     <p>A trend analysis of the 142 robotics papers at ICML 2026 (the Vision-Language-Action era), plus a searchable, sortable table of the full categorized paper corpus.</p>
     <p><a href="icml2026-robotics.html">View the analysis &amp; paper table &rarr;</a></p>
   </section>
 
-  <section>
-    <h2>Current Projects</h2>
-    <ul class="projects">
-      <li>
-        <div><div class="name">6-DOF Robot Arm</div><div class="desc">High-accuracy robotic arm with six degrees of freedom. Focus on precision manufacturing and repeatability.</div></div>
-        <span class="status planning">Planning</span>
-      </li>
-      <li>
-        <div><div class="name">Alibaba Sourcing</div><div class="desc">Identifying and vetting Chinese manufacturers for precision mechanical components and motors.</div></div>
-        <span class="status in-progress">In Progress</span>
-      </li>
-      <li>
-        <div><div class="name">Documentation</div><div class="desc">Building comprehensive documentation for the robot design, sourcing process, and assembly.</div></div>
-        <span class="status active">Active</span>
-      </li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Technical Specifications</h2>
-    <ul class="specs">
-      <li><span class="k">Degrees of Freedom</span><span>6 (six-axis articulation)</span></li>
-      <li><span class="k">Accuracy Target</span><span>High precision (sub-millimeter)</span></li>
-      <li><span class="k">Manufacturing</span><span>Sourced from China (Alibaba platform)</span></li>
-      <li><span class="k">Location</span><span>Israel</span></li>
-      <li><span class="k">Status</span><span>Early planning and supplier research phase</span></li>
-    </ul>
-  </section>
-
   <footer>
-    Built by Dotan · <a href="https://github.com/dotdbot">github.com/dotdbot</a>
+    Built by Dotan · <a href="https://dotd.github.io">dotd.github.io</a> · <a href="https://github.com/dotdbot">github.com/dotdbot</a>
   </footer>
 </div>
 </body>
